@@ -27,13 +27,19 @@ export default function ProductsPage() {
   } = useSWR<Product[]>("/api/products", fetcher);
 
   const deleteProduct = async (id: string) => {
-    await fetch("/api/products", {
+    const res = await fetch(`/api/products/${id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
     });
-    mutate();
+  
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
+  
+    mutate(); // refresh product list
   };
+  
+  
   
 
   if (isLoading) {

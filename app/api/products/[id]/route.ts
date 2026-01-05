@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/lib/models/Product";
 
@@ -9,13 +9,13 @@ type Context = {
 };
 
 export async function PUT(
-  request: NextRequest,
+  req: Request,
   context: Context
 ) {
   await connectDB();
 
   const { id } = await context.params;
-  const body = await request.json();
+  const body = await req.json();
 
   const updated = await Product.findByIdAndUpdate(
     id,
@@ -27,7 +27,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  req: Request,
   context: Context
 ) {
   await connectDB();
@@ -37,6 +37,3 @@ export async function DELETE(
 
   return NextResponse.json({ success: true });
 }
-
-
-
