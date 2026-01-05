@@ -15,12 +15,8 @@ export async function POST(req: Request) {
   return NextResponse.json(product, { status: 201 });
 }
 
-export async function DELETE(req: Request) {
-  await connectDB();
-  const { id } = await req.json();
-  await Product.findByIdAndDelete(id);
-  return NextResponse.json({ success: true });
-}
+
+
 
 
 

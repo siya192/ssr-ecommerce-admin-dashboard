@@ -1,16 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/lib/models/Product";
 
+type Context = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: Context
 ) {
   await connectDB();
-  const body = await req.json();
+
+  const { id } = await context.params;
+  const body = await request.json();
 
   const updated = await Product.findByIdAndUpdate(
-    params.id,
+    id,
     body,
     { new: true }
   );
@@ -19,12 +27,16 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: Context
 ) {
   await connectDB();
-  await Product.findByIdAndDelete(params.id);
+
+  const { id } = await context.params;
+  await Product.findByIdAndDelete(id);
+
   return NextResponse.json({ success: true });
 }
+
 
 
