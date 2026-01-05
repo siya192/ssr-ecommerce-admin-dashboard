@@ -46,3 +46,7 @@ Password: example
 ---
 
  Project Structure
+app/        → Pages & routes  
+lib/        → Database & models  
+public/     → Static assets  
+middleware.ts → Route protection  
