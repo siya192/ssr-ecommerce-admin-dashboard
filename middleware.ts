@@ -13,10 +13,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // check role from cookie ONLY IF EXISTS
+  
   const role = request.cookies.get("role")?.value;
 
-  // ❌ REMOVE strict blocking
+  
   if (!role && pathname.startsWith("/admin")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

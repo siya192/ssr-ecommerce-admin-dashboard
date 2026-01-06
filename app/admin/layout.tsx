@@ -11,7 +11,7 @@ export default function AdminLayout({
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // ✅ read role from cookie
+    
     const hasAdminRole = document.cookie.includes("role=admin");
     setIsAdmin(hasAdminRole);
   }, []);
@@ -46,7 +46,7 @@ export default function AdminLayout({
 
           <button
             onClick={() => {
-              // ✅ proper logout
+              // proper logout
               document.cookie = "role=; Max-Age=0; path=/";
               localStorage.removeItem("loggedAdmin");
               window.location.href = "/login";

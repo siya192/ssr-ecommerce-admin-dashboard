@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // ✅ Ensure one dummy admin exists
+  
   useEffect(() => {
     const stored = localStorage.getItem("admins");
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
       return;
     }
     document.cookie = "role=admin; path=/";
-    // ✅ LOGIN SUCCESS
+    // LOGIN SUCCESS
     localStorage.setItem("role", "admin");
     localStorage.setItem("loggedAdmin", email);
 
