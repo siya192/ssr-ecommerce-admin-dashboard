@@ -15,8 +15,8 @@ https://www.youtube.com/watch?v=zWSIOfVD3LU
 ---
 
 Dummy Admin Credentials
-Admin: admin@eg.com
-Password: example
+Admin: admin@test.com
+Password: Admin@123
 
 ---
 
