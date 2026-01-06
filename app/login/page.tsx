@@ -43,7 +43,7 @@ export default function LoginPage() {
       alert("Invalid admin credentials");
       return;
     }
-
+    document.cookie = "role=admin; path=/";
     // ✅ LOGIN SUCCESS
     localStorage.setItem("role", "admin");
     localStorage.setItem("loggedAdmin", email);
