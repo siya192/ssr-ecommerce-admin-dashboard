@@ -94,15 +94,13 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={handleLogin}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
-        >
-          Login
-        </button>
+  type="button"
+  onClick={handleLogin}
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
+>
+  Login
+</button>
 
-        <p className="text-sm text-slate-500 text-center mt-4">
-          Dummy Admin: admin@test.com / Admin@123
-        </p>
       </div>
     </div>
   );
