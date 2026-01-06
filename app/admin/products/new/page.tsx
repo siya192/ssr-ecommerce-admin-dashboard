@@ -40,7 +40,7 @@ export default function NewProductPage() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "products_upload"); // ✅ EXACT preset name
+    formData.append("upload_preset", "products_upload"); // 
 
     const res = await fetch(
       "https://api.cloudinary.com/v1_1/dlev9xgxp/image/upload",
@@ -52,7 +52,7 @@ export default function NewProductPage() {
 
     if (!res.ok) {
       setUploading(false);
-      alert("❌ Image upload failed. Check preset / cloud name.");
+      alert(" Image upload failed. Check preset / cloud name.");
       return;
     }
 
@@ -220,7 +220,7 @@ export default function NewProductPage() {
                       className="w-28 h-28 object-cover rounded-lg border"
                     />
                     <span className="text-green-600 font-semibold">
-                      ✅ Uploaded successfully
+                       Uploaded successfully
                     </span>
                   </div>
                 )}

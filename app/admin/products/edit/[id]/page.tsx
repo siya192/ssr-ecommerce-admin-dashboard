@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { useForm } from "react-hook-form";
@@ -20,20 +20,20 @@ type ProductForm = z.infer<typeof productSchema>;
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-/* ================= PAGE ================= */
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
   /* 🔐 Admin protection */
   useEffect(() => {
     const role = localStorage.getItem("role");
-    if (role !== "admin") {
-      router.push("/login");
-    }
+    if (role !== "admin") router.push("/login");
   }, [router]);
 
-  /* 📦 Fetch product from DB */
+  /* 📦 Fetch product */
   const { data, isLoading } = useSWR(
     id ? `/api/products/${id}` : null,
     fetcher
@@ -48,7 +48,7 @@ export default function EditProductPage() {
     resolver: zodResolver(productSchema),
   });
 
-  /* 🧠 Fill form */
+  /* 🧠 Fill form with existing data */
   useEffect(() => {
     if (data) {
       setValue("name", data.name);
@@ -56,8 +56,29 @@ export default function EditProductPage() {
       setValue("quantity", data.quantity);
       setValue("category", data.category);
       setValue("image", data.image);
+      setPreview(data.image);
     }
   }, [data, setValue]);
+
+  /* ☁️ Cloudinary upload */
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "products_upload"); // same preset as Add Product
+
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dlev9xgxp/image/upload",
+      { method: "POST", body: formData }
+    );
+
+    const result = await res.json();
+
+    setValue("image", result.secure_url, { shouldValidate: true });
+    setPreview(result.secure_url);
+    setUploading(false);
+  };
 
   /* ✏️ UPDATE */
   const onSubmit = async (formData: ProductForm) => {
@@ -113,11 +134,55 @@ export default function EditProductPage() {
         />
         <p className="text-red-600 text-sm">{errors.category?.message}</p>
 
-        <input
-          className={inputClass}
-          placeholder="Image URL"
-          {...register("image")}
-        />
+        {/* 🖼 IMAGE UPLOAD (SAME AS ADD PRODUCT) */}
+        <label className="font-medium text-slate-800">
+          Product Image
+        </label>
+
+        <div className="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center bg-blue-50">
+          <input
+            type="file"
+            accept="image/*"
+            id="imageUpload"
+            className="hidden"
+            onChange={(e) =>
+              e.target.files && uploadImage(e.target.files[0])
+            }
+          />
+
+          {!preview ? (
+            <label
+              htmlFor="imageUpload"
+              className="cursor-pointer flex flex-col items-center gap-2"
+            >
+              <span className="text-4xl">📸</span>
+              <span className="font-semibold text-slate-900">
+                Click to upload image
+              </span>
+            </label>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src={preview}
+                alt="Product"
+                className="w-28 h-28 object-cover rounded-lg border"
+              />
+              <label
+                htmlFor="imageUpload"
+                className="cursor-pointer text-blue-600 font-medium"
+              >
+                Change Image
+              </label>
+            </div>
+          )}
+        </div>
+
+        {uploading && (
+          <p className="text-blue-600 font-medium">
+            Uploading image…
+          </p>
+        )}
+
         <p className="text-red-600 text-sm">{errors.image?.message}</p>
 
         <div className="flex gap-3 pt-4">
@@ -140,5 +205,6 @@ export default function EditProductPage() {
     </div>
   );
 }
+
 
 
