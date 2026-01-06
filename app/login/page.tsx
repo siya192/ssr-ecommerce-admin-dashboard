@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
+type Admin = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,11 +14,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // ✅ Ensure at least one dummy admin exists
+  useEffect(() => {
+    const stored = localStorage.getItem("admins");
+
+    if (!stored) {
+      const dummyAdmin: Admin[] = [
+        {
+          email: "admin@eg.com",
+          password: "example",
+        },
+      ];
+      localStorage.setItem("admins", JSON.stringify(dummyAdmin));
+    }
+  }, []);
+
   const handleLogin = () => {
-    const admins = JSON.parse(localStorage.getItem("admins") || "[]");
+    const admins: Admin[] = JSON.parse(
+      localStorage.getItem("admins") || "[]"
+    );
 
     const found = admins.find(
-      (admin: any) =>
+      (admin) =>
         admin.email === email && admin.password === password
     );
 
@@ -27,8 +49,7 @@ export default function LoginPage() {
     localStorage.setItem("loggedAdmin", email);
 
     router.push("/admin");
-  }; // ✅ THIS WAS MISSING
-  
+  };
 
   const inputClass =
     "w-full border border-slate-300 rounded-lg px-4 py-2 " +
@@ -53,7 +74,7 @@ export default function LoginPage() {
           <input
             type="email"
             className={inputClass}
-            placeholder="admin@example.com"
+            placeholder="admin@test.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -66,7 +87,7 @@ export default function LoginPage() {
           <input
             type="password"
             className={inputClass}
-            placeholder="********"
+            placeholder="Admin@123"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -78,7 +99,12 @@ export default function LoginPage() {
         >
           Login
         </button>
+
+        <p className="text-sm text-slate-500 text-center mt-4">
+          Dummy Admin: admin@test.com / Admin@123
+        </p>
       </div>
     </div>
   );
 }
+
