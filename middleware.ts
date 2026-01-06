@@ -2,24 +2,23 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const pathname = request.nextUrl.pathname;
 
-  // ✅ Public routes (ALWAYS allow)
+  // allow public routes
   if (
     pathname.startsWith("/login") ||
-    pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon")
+    pathname.startsWith("/api")
   ) {
     return NextResponse.next();
   }
 
-  // 🔒 Protect admin routes
-  if (pathname.startsWith("/admin")) {
-    const isLoggedIn = request.cookies.get("admin-auth");
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  // check role from cookie ONLY IF EXISTS
+  const role = request.cookies.get("role")?.value;
+
+  // ❌ REMOVE strict blocking
+  if (!role && pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
@@ -28,6 +27,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/admin/:path*"],
 };
+
 
 
 

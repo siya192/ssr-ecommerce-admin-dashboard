@@ -14,15 +14,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // ✅ Ensure at least one dummy admin exists
+  // ✅ Ensure one dummy admin exists
   useEffect(() => {
     const stored = localStorage.getItem("admins");
 
     if (!stored) {
       const dummyAdmin: Admin[] = [
         {
-          email: "admin@eg.com",
-          password: "example",
+          email: "admin@test.com",
+          password: "Admin@123",
         },
       ];
       localStorage.setItem("admins", JSON.stringify(dummyAdmin));
@@ -44,8 +44,8 @@ export default function LoginPage() {
       return;
     }
 
-    // ✅ login success
-    document.cookie = "role=admin; path=/";
+    // ✅ LOGIN SUCCESS
+    localStorage.setItem("role", "admin");
     localStorage.setItem("loggedAdmin", email);
 
     router.push("/admin");
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <input
             type="email"
             className={inputClass}
-            placeholder="admin@test.com"
+            
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -87,22 +87,22 @@ export default function LoginPage() {
           <input
             type="password"
             className={inputClass}
-            placeholder="Admin@123"
+            
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
         <button
-  type="button"
-  onClick={handleLogin}
-  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
->
-  Login
-</button>
-
+          type="button"
+          onClick={handleLogin}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
+        >
+          Login
+        </button>
       </div>
     </div>
   );
 }
+
 
