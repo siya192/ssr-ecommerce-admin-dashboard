@@ -6,12 +6,11 @@ Admins can manage products, view charts, and control inventory.
 ---
 
  Live Demo
- https://ssr-ecommerce-admin-dashboard-3pv8i79iq-siya-modis-projects.vercel.app/login
-
+ https://ssr-ecommerce-admin-dashboard-e6y8oe6kh-siya-modis-projects.vercel.app/admin
 ---
 
  Demo Video
-🔗 https://YOUR-DEMO-VIDEO-LINK
+https://www.youtube.com/watch?v=zWSIOfVD3LU
 
 ---
 
