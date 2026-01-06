@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { useForm } from "react-hook-form";
@@ -13,7 +13,6 @@ const productSchema = z.object({
   price: z.number().positive("Price must be greater than 0"),
   quantity: z.number().int().nonnegative("Quantity cannot be negative"),
   category: z.string().min(2, "Category is required"),
-  image: z.string().min(1, "Image is required"),
 });
 
 type ProductForm = z.infer<typeof productSchema>;
@@ -23,9 +22,6 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-
-  const [uploading, setUploading] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   /* 🔐 Admin protection */
   useEffect(() => {
@@ -48,45 +44,15 @@ export default function EditProductPage() {
     resolver: zodResolver(productSchema),
   });
 
-  /* 🧠 Fill existing data */
+  /* 🧠 Fill existing values */
   useEffect(() => {
     if (data) {
       setValue("name", data.name);
       setValue("price", data.price);
       setValue("quantity", data.quantity);
       setValue("category", data.category);
-      setValue("image", data.image);
-      setUploadedImage(data.image);
     }
   }, [data, setValue]);
-
-  /* ☁️ CLOUDINARY UPLOAD (SAME AS NEW PAGE) */
-  const uploadImage = async (file: File) => {
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "products_upload");
-
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dlev9xgxp/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!res.ok) {
-      setUploading(false);
-      alert("Image upload failed");
-      return;
-    }
-
-    const result = await res.json();
-    setValue("image", result.secure_url, { shouldValidate: true });
-    setUploadedImage(result.secure_url);
-    setUploading(false);
-  };
 
   /* ✏️ UPDATE PRODUCT */
   const onSubmit = async (formData: ProductForm) => {
@@ -141,57 +107,6 @@ export default function EditProductPage() {
           {...register("category")}
         />
         <p className="text-red-600 text-sm">{errors.category?.message}</p>
-
-        {/* ===== IMAGE UPLOAD (SAME UI AS NEW PAGE) ===== */}
-        <label className="block mt-4 mb-2 font-medium text-slate-800">
-          Product Image
-        </label>
-
-        <div className="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center bg-blue-50">
-          <input
-            type="file"
-            accept="image/*"
-            id="imageUpload"
-            className="hidden"
-            onChange={(e) =>
-              e.target.files && uploadImage(e.target.files[0])
-            }
-          />
-
-          {!uploadedImage ? (
-            <label
-              htmlFor="imageUpload"
-              className="cursor-pointer flex flex-col items-center gap-2"
-            >
-              <span className="text-4xl">📸</span>
-              <span className="text-slate-900 font-semibold">
-                Click to upload image
-              </span>
-            </label>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <img
-                src={uploadedImage}
-                alt="Uploaded"
-                className="w-28 h-28 object-cover rounded-lg border"
-              />
-              <label
-                htmlFor="imageUpload"
-                className="cursor-pointer text-blue-600 font-semibold"
-              >
-                Change Image
-              </label>
-            </div>
-          )}
-        </div>
-
-        {uploading && (
-          <p className="text-blue-600 font-medium">
-            Uploading image…
-          </p>
-        )}
-
-        <p className="text-red-600 text-sm">{errors.image?.message}</p>
 
         <div className="flex gap-3 pt-4">
           <button
