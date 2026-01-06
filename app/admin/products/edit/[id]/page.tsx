@@ -9,11 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 /* ================= SCHEMA ================= */
 const productSchema = z.object({
-  name: z.string().min(2, "Product name required"),
-  price: z.number().positive("Invalid price"),
-  quantity: z.number().int().nonnegative("Invalid quantity"),
-  category: z.string().min(2, "Category required"),
-  image: z.string().min(1, "Image required"),
+  name: z.string().min(2, "Product name is required"),
+  price: z.number().positive("Price must be greater than 0"),
+  quantity: z.number().int().nonnegative("Quantity cannot be negative"),
+  category: z.string().min(2, "Category is required"),
+  image: z.string().min(1, "Image is required"),
 });
 
 type ProductForm = z.infer<typeof productSchema>;
@@ -25,7 +25,7 @@ export default function EditProductPage() {
   const router = useRouter();
 
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   /* 🔐 Admin protection */
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function EditProductPage() {
     resolver: zodResolver(productSchema),
   });
 
-  /* 🧠 Fill form with existing data */
+  /* 🧠 Fill existing data */
   useEffect(() => {
     if (data) {
       setValue("name", data.name);
@@ -56,31 +56,39 @@ export default function EditProductPage() {
       setValue("quantity", data.quantity);
       setValue("category", data.category);
       setValue("image", data.image);
-      setPreview(data.image);
+      setUploadedImage(data.image);
     }
   }, [data, setValue]);
 
-  /* ☁️ Cloudinary upload */
+  /* ☁️ CLOUDINARY UPLOAD (SAME AS NEW PAGE) */
   const uploadImage = async (file: File) => {
     setUploading(true);
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "products_upload"); // same preset as Add Product
+    formData.append("upload_preset", "products_upload");
 
     const res = await fetch(
       "https://api.cloudinary.com/v1_1/dlev9xgxp/image/upload",
-      { method: "POST", body: formData }
+      {
+        method: "POST",
+        body: formData,
+      }
     );
 
-    const result = await res.json();
+    if (!res.ok) {
+      setUploading(false);
+      alert("Image upload failed");
+      return;
+    }
 
+    const result = await res.json();
     setValue("image", result.secure_url, { shouldValidate: true });
-    setPreview(result.secure_url);
+    setUploadedImage(result.secure_url);
     setUploading(false);
   };
 
-  /* ✏️ UPDATE */
+  /* ✏️ UPDATE PRODUCT */
   const onSubmit = async (formData: ProductForm) => {
     await fetch(`/api/products/${id}`, {
       method: "PUT",
@@ -134,8 +142,8 @@ export default function EditProductPage() {
         />
         <p className="text-red-600 text-sm">{errors.category?.message}</p>
 
-        {/* 🖼 IMAGE UPLOAD (SAME AS ADD PRODUCT) */}
-        <label className="font-medium text-slate-800">
+        {/* ===== IMAGE UPLOAD (SAME UI AS NEW PAGE) ===== */}
+        <label className="block mt-4 mb-2 font-medium text-slate-800">
           Product Image
         </label>
 
@@ -150,26 +158,26 @@ export default function EditProductPage() {
             }
           />
 
-          {!preview ? (
+          {!uploadedImage ? (
             <label
               htmlFor="imageUpload"
               className="cursor-pointer flex flex-col items-center gap-2"
             >
               <span className="text-4xl">📸</span>
-              <span className="font-semibold text-slate-900">
+              <span className="text-slate-900 font-semibold">
                 Click to upload image
               </span>
             </label>
           ) : (
             <div className="flex flex-col items-center gap-3">
               <img
-                src={preview}
-                alt="Product"
+                src={uploadedImage}
+                alt="Uploaded"
                 className="w-28 h-28 object-cover rounded-lg border"
               />
               <label
                 htmlFor="imageUpload"
-                className="cursor-pointer text-blue-600 font-medium"
+                className="cursor-pointer text-blue-600 font-semibold"
               >
                 Change Image
               </label>
@@ -205,6 +213,7 @@ export default function EditProductPage() {
     </div>
   );
 }
+
 
 
 
